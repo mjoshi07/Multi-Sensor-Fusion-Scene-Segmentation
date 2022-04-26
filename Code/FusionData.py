@@ -1,0 +1,72 @@
+import os
+import cv2
+import numpy as np
+
+import torch
+from torch.utils.data import Dataset, DataLoader
+
+
+class FusionDataset(Dataset):
+    def __init__(self, path):
+
+        self.rgb_img_dir = os.path.join(path, "rgb")
+        self.lidar_img_dir = os.path.join(path, "lidar")
+        self.oflow_img_dir = os.path.join(path, "oflow")
+        self.seg_mask_dir = os.path.join(path, "seg")
+
+        self.image_names = os.listdir(self.rgb_img_dir)
+
+    def __len__(self):
+        return len(self.image_names)
+
+    def __getitem__(self, idx):
+        img_name = self.image_names[idx]
+        rgb_img = cv2.imread(os.path.join(self.rgb_img_dir, img_name))
+        # lidar_img = cv2.imread(os.path.join(self.lidar_img_dir, img_name), 0)
+        lidar_img = self.read_lidar_vkitti(img_name)
+        oflow_img = self.read_oflow_vkitti(img_name)
+        # oflow_img = cv2.imread(os.path.join(self.oflow_img_dir, img_name))
+        seg_img = cv2.imread(os.path.join(self.seg_mask_dir, img_name), cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
+
+        rgb_img = torch.from_numpy(rgb_img.astype(float))
+        lidar_img = torch.from_numpy(lidar_img.astype(float))
+        oflow_img = torch.from_numpy(oflow_img.astype(float))
+        seg_img = torch.from_numpy(seg_img.astype(float))
+        seg_img = seg_img.permute(2, 0, 1)
+        input_img = np.dstack((rgb_img, lidar_img, oflow_img))
+
+        return input_img, seg_img
+
+    def read_oflow_vkitti(self, img_name):
+        """
+        https://europe.naverlabs.com/research/computer-vision/proxy-virtual-worlds-vkitti-1/
+        Change pixel range to (0, 255)
+        """
+        bgr = cv2.imread(os.path.join(self.oflow_img_dir, img_name), cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
+        h, w, c = bgr.shape
+        assert bgr.dtype == np.uint16 and c == 3
+        invalid = bgr[..., 0] = 0
+        out_flow = 2.0 / (2 ** 16 - 1.0) * bgr[..., 2: 0:-1].astype('f4') - 1
+        out_flow[..., 0] *= w - 1
+        out_flow[..., 1] *= h - 1
+        out_flow[invalid] = 0
+        out_flow = out_flow - np.min(out_flow)
+        out_flow = np.float32(out_flow * 255.0 / np.max(out_flow))
+        return out_flow
+
+    def read_lidar_vkitti(self, img_name):
+        """
+        pixel value = 1 represents distance of 1 cm in real world
+        Change pixel range to (0, 255)
+        """
+        bgr = cv2.imread(os.path.join(self.lidar_img_dir, img_name), cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
+        bgr = np.float32(bgr * 255.0 / np.max(bgr))
+        return bgr
+
+
+if __name__ == "__main__":
+    data_path = "../Data/Train"
+    train_loader = DataLoader(FusionDataset(data_path), batch_size=1, shuffle=True)
+    train_iter = iter(train_loader)
+    input_imgs, output_imgs = next(train_iter)
+    print(input_imgs.shape, output_imgs.shape)
