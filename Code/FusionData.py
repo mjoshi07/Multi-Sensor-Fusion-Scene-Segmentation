@@ -14,13 +14,33 @@ class FusionDataset(Dataset):
         self.oflow_img_dir = os.path.join(path, "oflow")
         self.seg_mask_dir = os.path.join(path, "seg")
 
-        self.image_names = os.listdir(self.rgb_img_dir)
+        self.image_paths = self._load_image_paths()
 
     def __len__(self):
-        return len(self.image_names)
+        return len(self.image_paths)
+
+    def _load_image_paths(self):
+        basename = os.path.basename(self.rgb_img_dir)
+        dir_0001 = "0001"
+        dir_0002 = "0002"
+        dir_0006 = "0006"
+        dir_0018 = "0018"
+        dir_0020 = "0020"
+
+        dirs = [dir_0001, dir_0002, dir_0006, dir_0018, dir_0020]
+
+        end_img_paths = []
+        for data_dir in dirs:
+            for root, _, files in os.walk(os.path.join(self.rgb_img_dir, data_dir)):
+                for filename in files:
+                    full_path = os.path.join(root, filename)
+                    useful_path = full_path.split(basename)[1]
+                    end_img_paths.append(useful_path)
+
+        return end_img_paths
 
     def __getitem__(self, idx):
-        img_name = self.image_names[idx]
+        img_name = self.image_paths[idx]
         rgb_img = cv2.imread(os.path.join(self.rgb_img_dir, img_name))
         # lidar_img = cv2.imread(os.path.join(self.lidar_img_dir, img_name), 0)
         lidar_img = self.read_lidar_vkitti(img_name)

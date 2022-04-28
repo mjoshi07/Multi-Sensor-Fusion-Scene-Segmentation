@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 import cv2
 
 
@@ -150,6 +151,19 @@ def split_input(input_data, lidar, optical_flow):
     return x, None, None
 
 
+def count_parameters(model):
+    total_param = 0
+    for name, param in model.named_parameters():
+        if param.requires_grad:
+            num_param = np.prod(param.size())
+            if param.dim() > 1:
+                print(name, ':', 'x'.join(str(x) for x in list(param.size())), '=', num_param)
+            else:
+                print(name, ':', num_param)
+            total_param += num_param
+    return total_param
+
+
 if __name__ == "__main__":
 
     import FusionData as fd
@@ -162,6 +176,8 @@ if __name__ == "__main__":
     print('output shape: ', output_imgs.shape)
 
     model = FusionNet(out_channels=3, input_shape=(375, 1242), lidar=True, optical_flow=True)
+    print('number of trainable parameters =', count_parameters(model))
+
     import time
     from tqdm import tqdm
 
