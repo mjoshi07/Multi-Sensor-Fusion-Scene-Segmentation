@@ -46,15 +46,15 @@ class FusionDataset(Dataset):
     def __getitem__(self, idx):
         img_name = self.image_paths[idx]
         rgb_img = cv2.imread(os.path.join(self.rgb_img_dir, img_name))
-        rgb_img = cv2.resize(rgb_img, (621, 187))
+        rgb_img = cv2.resize(rgb_img, (310, 93))
         # lidar_img = cv2.imread(os.path.join(self.lidar_img_dir, img_name), 0)
         lidar_img = self.read_lidar_vkitti(img_name)
-        lidar_img = cv2.resize(lidar_img, (621, 187))
+        lidar_img = cv2.resize(lidar_img, (310, 93))
         oflow_img = self.read_oflow_vkitti(img_name)
-        oflow_img = cv2.resize(oflow_img, (621, 187))
+        oflow_img = cv2.resize(oflow_img, (310, 93))
         # oflow_img = cv2.imread(os.path.join(self.oflow_img_dir, img_name))
         seg_img = cv2.imread(os.path.join(self.seg_mask_dir, img_name), cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
-        seg_img = cv2.resize(seg_img, (621, 187))
+        seg_img = cv2.resize(seg_img, (310, 93))
 
         rgb_img = rgb_img.astype(float)
         lidar_img = lidar_img.astype(float)
