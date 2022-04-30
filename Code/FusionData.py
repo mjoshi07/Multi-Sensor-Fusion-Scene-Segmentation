@@ -14,6 +14,10 @@ class FusionDataset(Dataset):
         self.oflow_img_dir = os.path.join(path, "vkitti_1.3.1_flowgt")
         self.seg_mask_dir = os.path.join(path, "vkitti_1.3.1_scenegt")
 
+        if not (os.path.exists(self.rgb_img_dir) and os.path.exists(self.lidar_img_dir)\
+                and os.path.exists(self.oflow_img_dir) and os.path.exists(self.seg_mask_dir)):
+            raise ValueError(f'The path {path} does not have required structure!')
+
         self.image_paths = self._load_image_paths()
 
     def __len__(self):
@@ -35,7 +39,7 @@ class FusionDataset(Dataset):
                 for filename in files:
                     full_path = os.path.join(root, filename)
                     useful_path = full_path.split(basename)[1]
-                    end_img_paths.append(useful_path)
+                    end_img_paths.append(useful_path[1:])
 
         return end_img_paths
 
