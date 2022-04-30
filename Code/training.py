@@ -2,11 +2,10 @@ import os
 import shutil
 import torch
 import numpy as np
-import time
 from tqdm.autonotebook import tqdm
 
 def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
-          steps_till_summary, model_dir, loss_func, validation_dataloader=None):
+          model_dir, loss_func, validation_dataloader=None):
     optim = torch.optim.Adam(lr=lr, params=model.parameters())
 
     if os.path.exists(model_dir):
@@ -23,6 +22,7 @@ def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
     with tqdm(total=len(train_dataloader) * epochs) as pbar:
         train_losses = []
         for epoch in range(epochs):
+            epoch_loss = []
             if not epoch % epochs_till_chkpt and epoch:
                 torch.save(model.state_dict(),
                            os.path.join(chkpts_dir, f'model_epoch_{epoch}.pth'))
@@ -30,8 +30,6 @@ def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
                            np.array(train_losses))
 
             for _, (model_input, gt) in enumerate(train_dataloader):
-                start_time = time.time()
-
                 model_input = model_input.float()
                 model_input = model_input.cuda()
                 gt = gt.cuda()
@@ -39,16 +37,17 @@ def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
                 model_output = model(model_input)
                 loss = loss_func(model_output, gt)
                 train_losses.append(loss)
+                epoch_loss.append(loss)
 
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
 
-                if not total_steps % steps_till_summary:
-                    tqdm.write(f'Epoch {epoch}, Total loss: {loss}, iteration time: {time.time() - start_time}')
-
                 pbar.update(1)
                 total_steps += 1
+
+            if not epoch % epochs_till_chkpt and epoch:
+                tqdm.write(f'Epoch {epoch}, loss: {np.mean(epoch_loss)}')
 
             if validation_dataloader != None:
                 tqdm.write('Running validation set...')
