@@ -73,7 +73,7 @@ class FusionNet(nn.Module):
         """
         rgb_img, lidar_img, oflow_img = split_input(x, self.lidar, self.optical_flow)
 
-        rgb_img = rgb_img.permute(2, 0, 1)
+        rgb_img = rgb_img.permute(0, 3, 1, 2)
         rgb_img = rgb_img.unsqueeze(0)
         rgb_o1, rgb_o2, rgb_o3 = self.RGB_block(rgb_img)
 
@@ -82,7 +82,7 @@ class FusionNet(nn.Module):
         intermediate_sum_3 = rgb_o3
 
         if self.lidar:
-            lidar_img = lidar_img.permute(2, 0, 1)
+            lidar_img = lidar_img.permute(0, 3, 1, 2)
             lidar_img = lidar_img.unsqueeze(0)
             lidar_o1, lidar_o2, lidar_o3 = self.LiDAR_block(lidar_img)
             intermediate_sum_1 += lidar_o1
@@ -90,7 +90,7 @@ class FusionNet(nn.Module):
             intermediate_sum_3 += lidar_o3
 
         if self.optical_flow:
-            oflow_img = oflow_img.permute(2, 0, 1)
+            oflow_img = oflow_img.permute(0, 3, 1, 2)
             oflow_img = oflow_img.unsqueeze(0)
             oflow_o1, oflow_o2, oflow_o3 = self.OFLOW_block(oflow_img)
             intermediate_sum_1 += oflow_o1
