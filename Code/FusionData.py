@@ -55,7 +55,7 @@ class FusionDataset(Dataset):
         rgb_img = rgb_img.astype(float)
         lidar_img = lidar_img.astype(float)
         oflow_img = oflow_img.astype(float)
-        seg_img = seg_img.astype(float)
+        seg_img = torch.from_numpy(seg_img.astype(float))
         seg_img = seg_img.permute(2, 0, 1)
         input_img = torch.from_numpy(np.dstack((rgb_img, lidar_img, oflow_img)))
 
