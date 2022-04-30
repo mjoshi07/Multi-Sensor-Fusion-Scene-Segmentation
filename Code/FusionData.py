@@ -52,12 +52,12 @@ class FusionDataset(Dataset):
         # oflow_img = cv2.imread(os.path.join(self.oflow_img_dir, img_name))
         seg_img = cv2.imread(os.path.join(self.seg_mask_dir, img_name), cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
 
-        rgb_img = torch.from_numpy(rgb_img.astype(float))
-        lidar_img = torch.from_numpy(lidar_img.astype(float))
-        oflow_img = torch.from_numpy(oflow_img.astype(float))
-        seg_img = torch.from_numpy(seg_img.astype(float))
+        rgb_img = rgb_img.astype(float)
+        lidar_img = lidar_img.astype(float)
+        oflow_img = oflow_img.astype(float)
+        seg_img = seg_img.astype(float)
         seg_img = seg_img.permute(2, 0, 1)
-        input_img = np.dstack((rgb_img, lidar_img, oflow_img))
+        input_img = torch.from_numpy(np.dstack((rgb_img, lidar_img, oflow_img)))
 
         return input_img, seg_img
 
