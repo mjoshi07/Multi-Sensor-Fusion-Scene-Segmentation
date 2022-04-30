@@ -9,10 +9,10 @@ from torch.utils.data import Dataset, DataLoader
 class FusionDataset(Dataset):
     def __init__(self, path):
 
-        self.rgb_img_dir = os.path.join(path, "rgb")
-        self.lidar_img_dir = os.path.join(path, "lidar")
-        self.oflow_img_dir = os.path.join(path, "oflow")
-        self.seg_mask_dir = os.path.join(path, "seg")
+        self.rgb_img_dir = os.path.join(path, "vkitti_1.3.1_rgb")
+        self.lidar_img_dir = os.path.join(path, "vkitti_1.3.1_depthgt")
+        self.oflow_img_dir = os.path.join(path, "vkitti_1.3.1_flowgt")
+        self.seg_mask_dir = os.path.join(path, "vkitti_1.3.1_scenegt")
 
         self.image_paths = self._load_image_paths()
 
