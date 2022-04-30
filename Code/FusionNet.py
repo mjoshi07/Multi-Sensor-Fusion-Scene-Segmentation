@@ -1,7 +1,5 @@
-import torch
 import torch.nn as nn
 import numpy as np
-import cv2
 
 
 class UniModal(nn.Module):
@@ -99,39 +97,14 @@ class FusionNet(nn.Module):
         output_2 = self.conv2d_1d_512(intermediate_sum_2)
         output_2 = nn.Upsample(size=output_3.size()[2:], mode="bilinear", align_corners=True)(output_2)
         output_2 = output_3 + output_2
-        # output_2 = add_tensors(output_2, output_3)
         output_2 = self.up(output_2)
 
         output_1 = self.conv2d_1d_256(intermediate_sum_1)
         output_1 = nn.Upsample(size=output_2.size()[2:], mode="bilinear", align_corners=True)(output_1)
         output_1 = output_1 + output_2
-        # output_1 = add_tensors(output_1, output_2)
-        # output = self.up8(output_1)
         output = nn.Upsample(size=self.input_shape, mode="bilinear", align_corners=True)(output_1)
 
-        # output = resize_tensor(output, self.input_shape)
-
         return output
-
-
-def resize_tensor(tnsor, target_shape):
-    t_numpy = tnsor.permute(0, 2, 3, 1).detach().numpy()
-    t_numpy = t_numpy.squeeze()
-    t_numpy = cv2.resize(t_numpy, (target_shape[1], target_shape[0]))
-    t_tensor = torch.from_numpy(t_numpy.astype(float))
-    t_tensor = t_tensor.permute(2, 0, 1)
-    t_tensor = t_tensor.unsqueeze(0)
-
-    return t_tensor
-
-
-def add_tensors(t1, t2):
-    t1_size = (t1.size()[2], t1.size()[3])
-    t2_tensor = resize_tensor(t2, t1_size)
-
-    sum_t1_t2 = t1 + t2_tensor
-
-    return sum_t1_t2
 
 
 def split_input(input_data, lidar, optical_flow):

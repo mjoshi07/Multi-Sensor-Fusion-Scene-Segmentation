@@ -32,6 +32,7 @@ def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
             for _, (model_input, gt) in enumerate(train_dataloader):
                 start_time = time.time()
 
+                model_input = model_input.float()
                 model_input = model_input.cuda()
                 gt = gt.cuda()
 
