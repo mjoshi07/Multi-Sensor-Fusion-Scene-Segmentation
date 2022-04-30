@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import numpy as np
 
@@ -29,17 +30,20 @@ class UniModal(nn.Module):
         x = self.conv2d_256_2(x)
         x = self.conv2d_256_2(x)
         x = self.relu(x)
-        o1 = self.max_pool(x)
-        x = self.conv2d_512_1(o1)
+        x = self.max_pool(x)
+        o1 = torch.tensor.new_tensor(x)
+        x = self.conv2d_512_1(x)
         x = self.conv2d_512_2(x)
         x = self.conv2d_512_2(x)
         x = self.relu(x)
-        o2 = self.max_pool(x)
-        x = self.conv2d_512_2(o2)
+        x = self.max_pool(x)
+        o2 = torch.tensor.new_tensor(x)
+        x = self.conv2d_512_2(x)
         x = self.conv2d_512_2(x)
         x = self.conv2d_512_2(x)
         x = self.relu(x)
-        o3 = self.max_pool(x)
+        x = self.max_pool(x)
+        o3 = torch.tensor.new_tensor(x)
 
         return o1, o2, o3
 
