@@ -31,19 +31,19 @@ class UniModal(nn.Module):
         x = self.conv2d_256_2(x)
         x = self.relu(x)
         x = self.max_pool(x)
-        o1 = torch.tensor(x)
+        o1 = x.clone().detach()
         x = self.conv2d_512_1(x)
         x = self.conv2d_512_2(x)
         x = self.conv2d_512_2(x)
         x = self.relu(x)
         x = self.max_pool(x)
-        o2 = torch.tensor(x)
+        o2 = x.clone().detach()
         x = self.conv2d_512_2(x)
         x = self.conv2d_512_2(x)
         x = self.conv2d_512_2(x)
         x = self.relu(x)
         x = self.max_pool(x)
-        o3 = torch.tensor(x)
+        o3 = x.clone().detach()
 
         return o1, o2, o3
 
