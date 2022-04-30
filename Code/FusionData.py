@@ -26,12 +26,12 @@ class FusionDataset(Dataset):
     def _load_image_paths(self):
         basename = os.path.basename(self.oflow_img_dir)
         dir_0001 = "0001"
-        dir_0002 = "0002"
-        dir_0006 = "0006"
-        dir_0018 = "0018"
-        dir_0020 = "0020"
+        # dir_0002 = "0002"
+        # dir_0006 = "0006"
+        # dir_0018 = "0018"
+        # dir_0020 = "0020"
 
-        dirs = [dir_0001, dir_0002, dir_0006, dir_0018, dir_0020]
+        dirs = [dir_0001]
 
         end_img_paths = []
         for data_dir in dirs:
@@ -46,11 +46,15 @@ class FusionDataset(Dataset):
     def __getitem__(self, idx):
         img_name = self.image_paths[idx]
         rgb_img = cv2.imread(os.path.join(self.rgb_img_dir, img_name))
+        rgb_img = cv2.resize(rgb_img, (621, 187))
         # lidar_img = cv2.imread(os.path.join(self.lidar_img_dir, img_name), 0)
         lidar_img = self.read_lidar_vkitti(img_name)
+        lidar_img = cv2.resize(lidar_img, (621, 187))
         oflow_img = self.read_oflow_vkitti(img_name)
+        oflow_img = cv2.resize(oflow_img, (621, 187))
         # oflow_img = cv2.imread(os.path.join(self.oflow_img_dir, img_name))
         seg_img = cv2.imread(os.path.join(self.seg_mask_dir, img_name), cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
+        seg_img = cv2.resize(seg_img, (621, 187))
 
         rgb_img = rgb_img.astype(float)
         lidar_img = lidar_img.astype(float)
