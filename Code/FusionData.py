@@ -24,7 +24,7 @@ class FusionDataset(Dataset):
         return len(self.image_paths)
 
     def _load_image_paths(self):
-        basename = os.path.basename(self.rgb_img_dir)
+        basename = os.path.basename(self.oflow_img_dir)
         dir_0001 = "0001"
         dir_0002 = "0002"
         dir_0006 = "0006"
@@ -35,7 +35,7 @@ class FusionDataset(Dataset):
 
         end_img_paths = []
         for data_dir in dirs:
-            for root, _, files in os.walk(os.path.join(self.rgb_img_dir, data_dir)):
+            for root, _, files in os.walk(os.path.join(self.oflow_img_dir, data_dir)):
                 for filename in files:
                     full_path = os.path.join(root, filename)
                     useful_path = full_path.split(basename)[1]

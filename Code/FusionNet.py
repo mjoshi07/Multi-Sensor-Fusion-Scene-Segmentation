@@ -58,7 +58,7 @@ class FusionNet(nn.Module):
             self.LiDAR_block = UniModal(1)
 
         if self.optical_flow:
-            self.OFLOW_block = UniModal(3)
+            self.OFLOW_block = UniModal(2)
 
         self.conv2d_1d_512 = nn.Conv2d(512, out_channels, kernel_size=(1, 1), padding=1, bias=False)
         self.conv2d_1d_256 = nn.Conv2d(256, out_channels, kernel_size=(1, 1), padding=1, bias=False)
@@ -72,9 +72,7 @@ class FusionNet(nn.Module):
         C = 3(RGB), 1(LIDAR[DEPTH]), N(OPTICAL FLOW)
         """
         rgb_img, lidar_img, oflow_img = split_input(x, self.lidar, self.optical_flow)
-
         rgb_img = rgb_img.permute(0, 3, 1, 2)
-        rgb_img = rgb_img.unsqueeze(0)
         rgb_o1, rgb_o2, rgb_o3 = self.RGB_block(rgb_img)
 
         intermediate_sum_1 = rgb_o1
@@ -83,7 +81,6 @@ class FusionNet(nn.Module):
 
         if self.lidar:
             lidar_img = lidar_img.permute(0, 3, 1, 2)
-            lidar_img = lidar_img.unsqueeze(0)
             lidar_o1, lidar_o2, lidar_o3 = self.LiDAR_block(lidar_img)
             intermediate_sum_1 += lidar_o1
             intermediate_sum_2 += lidar_o2
@@ -91,7 +88,6 @@ class FusionNet(nn.Module):
 
         if self.optical_flow:
             oflow_img = oflow_img.permute(0, 3, 1, 2)
-            oflow_img = oflow_img.unsqueeze(0)
             oflow_o1, oflow_o2, oflow_o3 = self.OFLOW_block(oflow_img)
             intermediate_sum_1 += oflow_o1
             intermediate_sum_2 += oflow_o2
@@ -140,13 +136,13 @@ def add_tensors(t1, t2):
 
 def split_input(input_data, lidar, optical_flow):
 
-    x = torch.squeeze(input_data, 0)
+    x = input_data
     if lidar and optical_flow:
-        return x[:, :, :3], x[:, :, 3:4], x[:, :, 4:]
+        return x[:, :, :, :3], x[:, :, :, 3:4], x[:, :, :, 4:]
     if lidar and not optical_flow:
-        return x[:, :, :3], x[:, :, 3:], None
+        return x[:, :, :, :3], x[:, :, :, 3:], None
     if not lidar and optical_flow:
-        return x[:, :, :3], None, x[:, :, 3:]
+        return x[:, :, :, :3], None, x[:, :, :, 3:]
 
     return x, None, None
 
