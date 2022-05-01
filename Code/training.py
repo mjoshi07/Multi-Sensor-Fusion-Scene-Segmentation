@@ -58,6 +58,9 @@ def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
                 with torch.no_grad():
                     val_losses = torch.tensor([])
                     for model_input, gt in validation_dataloader:
+                        model_input = model_input.float()
+                        model_input = model_input.cuda()
+                        gt = gt.cuda()
                         model_output = model(model_input)
                         loss = loss_func(model_output, gt)
                         val_losses = torch.cat((val_losses,
