@@ -20,14 +20,14 @@ def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
 
     total_steps = 0
     with tqdm(total=len(train_dataloader) * epochs) as pbar:
-        train_losses = []
+        train_losses = torch.tensor([])
         for epoch in range(epochs):
-            epoch_loss = []
+            epoch_loss = torch.tensor([])
             if not epoch % epochs_till_chkpt and epoch:
                 torch.save(model.state_dict(),
                            os.path.join(chkpts_dir, f'model_epoch_{epoch}.pth'))
                 np.savetxt(os.path.join(chkpts_dir, f'train_losses_epoch_{epoch}.txt'),
-                           np.array(train_losses))
+                           train_losses.cpu().numpy())
 
             for _, (model_input, gt) in enumerate(train_dataloader):
                 model_input = model_input.float()
@@ -36,29 +36,33 @@ def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
 
                 model_output = model(model_input)
                 loss = loss_func(model_output, gt)
-                train_losses.append(loss)
-                epoch_loss.append(loss)
 
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
 
+                train_losses = torch.cat((train_losses,
+                                          torch.tensor([loss])), 0)
+                epoch_loss = torch.cat((epoch_loss,
+                                        torch.tensor([loss])), 0)
+
                 pbar.update(1)
                 total_steps += 1
 
             if not epoch % epochs_till_chkpt and epoch:
-                tqdm.write(f'Epoch {epoch}, loss: {np.mean(epoch_loss)}')
+                tqdm.write(f'Epoch {epoch}, loss: {np.mean(epoch_loss.cpu().numpy())}')
 
             if validation_dataloader != None:
                 tqdm.write('Running validation set...')
                 model.eval()
                 with torch.no_grad():
-                    val_losses = []
+                    val_losses = torch.tensor([])
                     for model_input, gt in validation_dataloader:
                         model_output = model(model_input)
                         loss = loss_func(model_output, gt)
-                        val_losses.append(loss)
-                    tqdm.write(f'Validation loss after epoch {epoch}: {np.mean(val_losses)}')
+                        val_losses = torch.cat((val_losses,
+                                                torch.tensor([loss])), 0)
+                    tqdm.write(f'Validation loss after epoch {epoch}: {np.mean(val_losses.cpu().numpy())}')
                 model.train()
 
         torch.save(model.state_dict(),

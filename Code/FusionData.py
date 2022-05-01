@@ -16,7 +16,7 @@ class FusionDataset(Dataset):
 
         if not (os.path.exists(self.rgb_img_dir) and os.path.exists(self.lidar_img_dir)\
                 and os.path.exists(self.oflow_img_dir) and os.path.exists(self.seg_mask_dir)):
-            raise ValueError(f'The path {path} does not have required structure!')
+            raise ValueError(f'The path {path} does not have required directory structure!')
 
         self.rgb_imgs, self.lidar_imgs, self.oflow_imgs, self.seg_imgs = self._load_images()
 

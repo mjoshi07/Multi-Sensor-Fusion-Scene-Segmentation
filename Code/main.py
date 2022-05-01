@@ -16,15 +16,12 @@ from FusionData import FusionDataset
 from FusionNet import FusionNet, count_parameters
 from training import train
 
-torch.autograd.set_detect_anomaly(True)
-
 # Params
 epochs = 100
 lr = 1e-5
-epochs_till_chkpt = 10
-steps_till_summary = 2
-batch_size = 2
-model_dir = '/content/drive/MyDrive/ENPM673_final_project/train1'
+epochs_till_chkpt = 1
+batch_size = 100
+model_dir = '../Data/vkitti'
 lidar = True
 optical_flow = True
 
@@ -32,7 +29,7 @@ optical_flow = True
 loss_func = nn.CrossEntropyLoss()
 
 # Model
-model = FusionNet(out_channels=3, input_shape=(375, 1242), lidar=lidar, optical_flow=optical_flow)
+model = FusionNet(out_channels=3, input_shape=(93, 310), lidar=lidar, optical_flow=optical_flow)
 params = count_parameters(model)
 print('===========================================================')
 print(f'Starting training with lidar: {lidar}, optical flow: {optical_flow}')
@@ -47,7 +44,7 @@ else:
 print('===========================================================')
 
 # Dataset and dataloader
-dataset = FusionDataset('/content/drive/MyDrive/ENPM673_final_project')
+dataset = FusionDataset('../Data/vkitti')
 total_length = len(dataset)
 train_length = int(0.9 * total_length)
 val_length = total_length - train_length
@@ -56,4 +53,5 @@ train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True
 val_dataloader = DataLoader(val_dataset, batch_size=1, shuffle=False)
 
 # Train!
-train(model, train_dataloader, epochs, lr, epochs_till_chkpt, steps_till_summary, model_dir, loss_func)
+train(model, train_dataloader, epochs, lr, epochs_till_chkpt, model_dir,
+      loss_func, validation_dataloader=val_dataloader)
