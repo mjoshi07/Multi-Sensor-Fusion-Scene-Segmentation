@@ -8,13 +8,12 @@ def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
           model_dir, loss_func, validation_dataloader=None):
     optim = torch.optim.Adam(lr=lr, params=model.parameters())
 
-    if os.path.exists(model_dir):
-        resp = input(f'The model directory {model_dir} Exists! Remove? [y/n]')
-        if resp == 'y':
-            shutil.rmtree(model_dir)
-    os.makedirs(model_dir)
-
     chkpts_dir = os.path.join(model_dir, 'checkpoints')
+    if os.path.exists(chkpts_dir):
+        val = input(f'The directory {chkpts_dir} already exists. Remove? [y/n]')
+        if val == 'y':
+            shutil.rmtree(chkpts_dir)
+    
     if not os.path.exists(chkpts_dir):
         os.makedirs(chkpts_dir)
 

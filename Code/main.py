@@ -64,7 +64,7 @@ if __name__ == '__main__':
     print('===========================================================')
 
     # Dataset and dataloader
-    dataset = FusionDataset('../Data/vkitti')
+    dataset = FusionDataset('../Data/vkitti', in_mem=False)
     total_length = len(dataset)
     train_length = int(0.9 * total_length)
     val_length = total_length - train_length
