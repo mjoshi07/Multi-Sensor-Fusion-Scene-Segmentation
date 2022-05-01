@@ -8,6 +8,7 @@ Original file is located at
 """
 
 # imports
+import argparse
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -16,42 +17,61 @@ from FusionData import FusionDataset
 from FusionNet import FusionNet, count_parameters
 from training import train
 
-# Params
-epochs = 100
-lr = 1e-5
-epochs_till_chkpt = 1
-batch_size = 100
-model_dir = '../Data/vkitti'
-lidar = True
-optical_flow = True
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-e', '--epochs', type=int, default=100,
+                        help='The number of epochs. Default: 100')
+    parser.add_argument('-lr', '--learning_rate', type=float, default=1e-5,
+                        help='The learning rate. Default: 1e-5')
+    parser.add_argument('-etc', '--epochs_till_chkpt', type=int, default=1,
+                        help='The number of epochs after which model is saved. Default: 1')
+    parser.add_argument('-bs', '--batch_size', type=int, default=100,
+                        help='The batch size. Default: 100')
+    parser.add_argument('-md', '--model_dir', type=str, default='../Data/vkitti',
+                        help='The folder where the dataset is stored. Default: ../Data/vkitti')
+    parser.add_argument('-l', '--lidar', type=bool, default=True,
+                        help='Should lidar data be used for training. Default: True')
+    parser.add_argument('-o', '--optical_flow', type=bool, default=True,
+                        help='Should flow data be used for training. Default: True')
 
-# Loss function
-loss_func = nn.CrossEntropyLoss()
+    args = parser.parse_args()
 
-# Model
-model = FusionNet(out_channels=3, input_shape=(93, 310), lidar=lidar, optical_flow=optical_flow)
-params = count_parameters(model)
-print('===========================================================')
-print(f'Starting training with lidar: {lidar}, optical flow: {optical_flow}')
-print(f'Number of model parameters: {params}')
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-print(f'Device: {device}')
-if torch.cuda.is_available():
-    print('CUDA enabled GPU found!')
-    model = model.to(device)
-else:
-    print('CUDA enabled GPU not found! Using CPU.')
-print('===========================================================')
+    # Params
+    epochs = args.epochs
+    lr = args.learning_rate
+    epochs_till_chkpt = args.epochs_till_chkpt
+    batch_size = args.batch_size
+    model_dir = args.model_dir
+    lidar = args.lidar
+    optical_flow = args.optical_flow
 
-# Dataset and dataloader
-dataset = FusionDataset('../Data/vkitti')
-total_length = len(dataset)
-train_length = int(0.9 * total_length)
-val_length = total_length - train_length
-train_dataset, val_dataset = torch.utils.data.random_split(dataset,[train_length, val_length])
-train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-val_dataloader = DataLoader(val_dataset, batch_size=1, shuffle=False)
+    # Loss function
+    loss_func = nn.CrossEntropyLoss()
 
-# Train!
-train(model, train_dataloader, epochs, lr, epochs_till_chkpt, model_dir,
-      loss_func, validation_dataloader=val_dataloader)
+    # Model
+    model = FusionNet(out_channels=3, input_shape=(93, 310), lidar=lidar, optical_flow=optical_flow)
+    params = count_parameters(model)
+    print('===========================================================')
+    print(f'Starting training with lidar: {lidar}, optical flow: {optical_flow}')
+    print(f'Number of model parameters: {params}')
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    print(f'Device: {device}')
+    if torch.cuda.is_available():
+        print('CUDA enabled GPU found!')
+        model = model.to(device)
+    else:
+        print('CUDA enabled GPU not found! Using CPU.')
+    print('===========================================================')
+
+    # Dataset and dataloader
+    dataset = FusionDataset('../Data/vkitti')
+    total_length = len(dataset)
+    train_length = int(0.9 * total_length)
+    val_length = total_length - train_length
+    train_dataset, val_dataset = torch.utils.data.random_split(dataset,[train_length, val_length])
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=1, shuffle=False)
+
+    # Train!
+    train(model, train_dataloader, epochs, lr, epochs_till_chkpt, model_dir,
+        loss_func, validation_dataloader=val_dataloader)
