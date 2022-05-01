@@ -7,6 +7,7 @@ from tqdm.autonotebook import tqdm
 def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
           model_dir, loss_func, validation_dataloader=None):
     optim = torch.optim.Adam(lr=lr, params=model.parameters())
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optim, mode='min', factor=0.5, patience=10, verbose=True)
 
     chkpts_dir = os.path.join(model_dir, 'checkpoints')
     if os.path.exists(chkpts_dir):
@@ -64,6 +65,7 @@ def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
                         loss = loss_func(model_output, gt)
                         val_losses = torch.cat((val_losses,
                                                 torch.tensor([loss])), 0)
+                    scheduler.step(val_losses.mean())
                     tqdm.write(f'Validation loss after epoch {epoch}: {np.mean(val_losses.cpu().numpy())}')
                 model.train()
 

@@ -49,7 +49,7 @@ if __name__ == '__main__':
     loss_func = nn.CrossEntropyLoss()
 
     # Model
-    model = FusionNet(out_channels=3, input_shape=(93, 310), lidar=lidar, optical_flow=optical_flow)
+    model = FusionNet(out_channels=3, input_shape=(187, 621), lidar=lidar, optical_flow=optical_flow)
     params = count_parameters(model)
     print('===========================================================')
     print(f'Starting training with lidar: {lidar}, optical flow: {optical_flow}')
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     print('===========================================================')
 
     # Dataset and dataloader
-    dataset = FusionDataset('../Data/vkitti', in_mem=False)
+    dataset = FusionDataset('../Data/vkitti', input_shape=(621, 187), in_mem=False)
     total_length = len(dataset)
     train_length = int(0.9 * total_length)
     val_length = total_length - train_length
