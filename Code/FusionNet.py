@@ -120,7 +120,7 @@ def split_input(input_data, lidar, optical_flow):
     if not lidar and optical_flow:
         return x[:, :, :, :3], None, x[:, :, :, 3:]
 
-    return x, None, None
+    return x[:, :, :, :3], None, None
 
 
 def count_parameters(model):
