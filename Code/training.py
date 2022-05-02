@@ -6,8 +6,7 @@ from tqdm.autonotebook import tqdm
 
 def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
           model_dir, loss_func, validation_dataloader=None):
-    # optim = torch.optim.Adam(lr=lr, params=model.parameters())
-    optim = torch.optim.SGD(lr=lr, params=model.parameters(), momentum=0.9)
+    optim = torch.optim.Adam(lr=lr, params=model.parameters())
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optim, mode='min', factor=0.5, patience=10, verbose=True)
 
     chkpts_dir = os.path.join(model_dir, 'checkpoints')
