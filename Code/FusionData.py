@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 
 
 class FusionDataset(Dataset):
-    def __init__(self, path, input_shape, in_mem=True):
+    def __init__(self, path, input_shape, in_mem=True, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
 
         self.rgb_img_dir = os.path.join(path, "vkitti_1.3.1_rgb")
         self.lidar_img_dir = os.path.join(path, "vkitti_1.3.1_depthgt")
@@ -15,6 +15,8 @@ class FusionDataset(Dataset):
         self.seg_mask_dir = os.path.join(path, "vkitti_1.3.1_scenegt")
         self.in_mem = in_mem
         self.input_shape = input_shape
+        self.mean = mean
+        self.std = std
 
         if not (os.path.exists(self.rgb_img_dir) and os.path.exists(self.lidar_img_dir)\
                 and os.path.exists(self.oflow_img_dir) and os.path.exists(self.seg_mask_dir)):
@@ -95,17 +97,15 @@ class FusionDataset(Dataset):
             seg_img = cv2.imread(os.path.join(self.seg_mask_dir, img_name), cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
             seg_img = cv2.resize(seg_img, self.input_shape)
 
-        rgb_img = rgb_img.astype(float)
-        rgb_img = cv2.normalize(rgb_img, None, 0.0, 1.0, cv2.NORM_MINMAX)
-        lidar_img = lidar_img.astype(float)
-        lidar_img = cv2.normalize(lidar_img, None, 0.0, 1.0, cv2.NORM_MINMAX)
-        oflow_img = oflow_img.astype(float)
-        oflow_img = cv2.normalize(oflow_img, None, 0.0, 1.0, cv2.NORM_MINMAX)
-        seg_img = cv2.normalize(seg_img, None, 0.0, 1.0, cv2.NORM_MINMAX)
-        seg_img = torch.from_numpy(seg_img.astype(float))
-        seg_img = seg_img.permute(2, 0, 1)
+        rgb_img = self.normalize(rgb_img)
+        lidar_img = self.normalize(lidar_img)
+        oflow_img = self.normalize(oflow_img)
         stacked = np.dstack((rgb_img, lidar_img, oflow_img))
         input_img = torch.from_numpy(stacked)
+
+        seg_img = self.normalize(seg_img)
+        seg_img = torch.from_numpy(seg_img)
+        seg_img = seg_img.permute(2, 0, 1)
 
         return input_img, seg_img
 
@@ -138,6 +138,15 @@ class FusionDataset(Dataset):
         bgr = np.dstack((bgr, bgr, bgr))
         return bgr
 
+    def normalize(self, img):
+
+        img = img.astype(float)
+        img = cv2.normalize(img, None, 0.0, 1.0, cv2.NORM_MINMAX)
+        img[:, :, 0] = (img[:, :, 0] - self.mean[0]) / (self.std[0])
+        img[:, :, 1] = (img[:, :, 1] - self.mean[1]) / (self.std[1])
+        img[:, :, 2] = (img[:, :, 2] - self.mean[2]) / (self.std[2])
+
+        return img
 
 if __name__ == "__main__":
 

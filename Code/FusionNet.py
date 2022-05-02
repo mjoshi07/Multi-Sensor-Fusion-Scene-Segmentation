@@ -23,11 +23,7 @@ class FusionNet(nn.Module):
         self.up8 = nn.Upsample(scale_factor=8, mode='bilinear', align_corners=True)
 
     def forward(self, x):
-        """
-        x - H x W x C
-        C = 3(RGB), 1(LIDAR[DEPTH]), N(OPTICAL FLOW)
-        """
-        rgb_img, lidar_img, oflow_img = split_input(x, self.lidar, self.optical_flow)
+        rgb_img, lidar_img, oflow_img = self._split_input(x)
 
         rgb_img = rgb_img.permute(0, 3, 1, 2)
         rgb_output = self.vgg_16(rgb_img)
@@ -76,18 +72,19 @@ class FusionNet(nn.Module):
 
         return output
 
+    def _split_input(self, input_data):
 
-def split_input(input_data, lidar, optical_flow):
+        rgb = input_data[:, :, :, :3]
+        lidar = None
+        oflow = None
 
-    x = input_data
-    if lidar and optical_flow:
-        return x[:, :, :, :3], x[:, :, :, 3:6], x[:, :, :, 6:]
-    if not lidar and optical_flow:
-        return x[:, :, :, :3], None, x[:, :, :, 3:]
-    if lidar and not optical_flow:
-        return x[:, :, :, :3], x[:, :, :, 3:], None
+        if self.lidar:
+            lidar = input_data[:, :, :, 3:6]
 
-    return x[:, :, :, :3], None, None
+        if self.optical_flow:
+            oflow = input_data[:, :, :, 6:]
+
+        return rgb, lidar, oflow
 
 
 def count_parameters(model):
@@ -114,7 +111,7 @@ if __name__ == "__main__":
     print('input shape: ', input_imgs.shape)
     print('output shape: ', output_imgs.shape)
 
-    model = FusionNet(out_channels=3, input_shape=(187, 621), lidar=True, optical_flow=True)
+    model = FusionNet(out_channels=3, input_shape=(187, 621), lidar=False, optical_flow=False)
     print('number of trainable parameters =', count_parameters(model))
 
     import time
