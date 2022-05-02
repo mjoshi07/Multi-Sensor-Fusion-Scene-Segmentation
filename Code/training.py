@@ -49,7 +49,7 @@ def train(model, train_dataloader, epochs, lr, epochs_till_chkpt,
                 pbar.update(1)
                 total_steps += 1
 
-            if not epoch % epochs_till_chkpt and epoch:
+            if not epoch % epochs_till_chkpt:
                 tqdm.write(f'Epoch {epoch}, loss: {np.mean(epoch_loss.cpu().numpy())}')
 
             if validation_dataloader != None:
