@@ -29,9 +29,9 @@ if __name__ == '__main__':
                         help='The batch size. Default: 100')
     parser.add_argument('-md', '--model_dir', type=str, default='../Data/vkitti',
                         help='The folder where the dataset is stored. Default: ../Data/vkitti')
-    parser.add_argument('-l', '--lidar', type=bool, default=True,
+    parser.add_argument('-l', '--lidar', action='store_true',
                         help='Should lidar data be used for training. Default: True')
-    parser.add_argument('-o', '--optical_flow', type=bool, default=True,
+    parser.add_argument('-o', '--optical_flow', action='store_true',
                         help='Should flow data be used for training. Default: True')
 
     args = parser.parse_args()
