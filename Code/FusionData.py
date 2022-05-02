@@ -100,7 +100,9 @@ class FusionDataset(Dataset):
         oflow_img = oflow_img.astype(float)
         seg_img = torch.from_numpy(seg_img.astype(float))
         seg_img = seg_img.permute(2, 0, 1)
-        input_img = torch.from_numpy(np.dstack((rgb_img, lidar_img, oflow_img)))
+        stacked = np.dstack((rgb_img, lidar_img, oflow_img))
+        stacked = (stacked - stacked.min(axis=2)) / (stacked.max(axis=2) - stacked.min(axis=2))
+        input_img = torch.from_numpy(stacked)
 
         return input_img, seg_img
 
