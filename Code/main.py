@@ -66,7 +66,7 @@ if __name__ == '__main__':
     # Dataset and dataloader
     dataset = FusionDataset('../Data/vkitti', input_shape=(621, 187), in_mem=False)
     total_length = len(dataset)
-    train_length = int(0.9 * total_length)
+    train_length = int(0.8 * total_length)
     val_length = total_length - train_length
     train_dataset, val_dataset = torch.utils.data.random_split(dataset,[train_length, val_length])
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
