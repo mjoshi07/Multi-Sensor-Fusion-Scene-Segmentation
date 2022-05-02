@@ -116,9 +116,9 @@ def split_input(input_data, lidar, optical_flow):
     if lidar and optical_flow:
         return x[:, :, :, :3], x[:, :, :, 3:4], x[:, :, :, 4:]
     if lidar and not optical_flow:
-        return x[:, :, :, :3], x[:, :, :, 3:], None
+        return x[:, :, :, :3], x[:, :, :, 3:4], None
     if not lidar and optical_flow:
-        return x[:, :, :, :3], None, x[:, :, :, 3:]
+        return x[:, :, :, :3], None, x[:, :, :, 4:]
 
     return x[:, :, :, :3], None, None
 
