@@ -124,6 +124,8 @@ class FusionDataset(Dataset):
         out_flow[invalid] = 0
         out_flow = out_flow - np.min(out_flow)
         out_flow = np.float32(out_flow * 255.0 / np.max(out_flow))
+        zeros = np.zeros(out_flow.shape[:2], dtype=np.float32)
+        out_flow = np.dstack((out_flow, zeros))
         return out_flow
 
     def read_lidar_vkitti(self, img_name):
@@ -133,12 +135,14 @@ class FusionDataset(Dataset):
         """
         bgr = cv2.imread(os.path.join(self.lidar_img_dir, img_name), cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
         bgr = np.float32(bgr * 255.0 / np.max(bgr))
+        bgr = np.dstack((bgr, bgr, bgr))
         return bgr
 
 
 if __name__ == "__main__":
-    data_path = "/home/aneeshd/Downloads/"
-    train_loader = DataLoader(FusionDataset(data_path, in_mem=True), batch_size=1, shuffle=True)
+
+    data_path = "../Data/Train"
+    train_loader = DataLoader(FusionDataset(data_path, (187, 621), in_mem=True), batch_size=1, shuffle=True)
     train_iter = iter(train_loader)
     input_imgs, output_imgs = next(train_iter)
     print(input_imgs.shape, output_imgs.shape)

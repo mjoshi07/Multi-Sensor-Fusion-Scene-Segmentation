@@ -1,65 +1,20 @@
 import torch.nn as nn
+import torchvision
+from torchvision.models._utils import IntermediateLayerGetter
 import numpy as np
-
-
-class UniModal(nn.Module):
-    def __init__(self, in_channels):
-        super(UniModal, self).__init__()
-        self.conv2d_64_1 = nn.Conv2d(in_channels=in_channels, out_channels=64, kernel_size=(3, 3), padding=1, bias=False)
-        self.conv2d_64_2 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(3, 3), padding=1, bias=False)
-        self.relu = nn.ReLU()
-        self.max_pool = nn.MaxPool2d(2)
-        self.conv2d_128_1 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=(3, 3), padding=1, bias=False)
-        self.conv2d_128_2 = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=(3, 3), padding=1, bias=False)
-        self.conv2d_256_1 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=(3, 3), padding=1, bias=False)
-        self.conv2d_256_2 = nn.Conv2d(in_channels=256, out_channels=256, kernel_size=(3, 3), padding=1, bias=False)
-        self.conv2d_512_1 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=(3, 3), padding=1, bias=False)
-        self.conv2d_512_2 = nn.Conv2d(in_channels=512, out_channels=512, kernel_size=(3, 3), padding=1, bias=False)
-
-    def forward(self, x):
-        x = self.conv2d_64_1(x)
-        x = self.conv2d_64_2(x)
-        x = self.relu(x)
-        x = self.max_pool(x)
-        x = self.conv2d_128_1(x)
-        x = self.conv2d_128_2(x)
-        x = self.relu(x)
-        x = self.max_pool(x)
-        x = self.conv2d_256_1(x)
-        x = self.conv2d_256_2(x)
-        x = self.conv2d_256_2(x)
-        x = self.relu(x)
-        x = self.max_pool(x)
-        o1 = x.clone().detach()
-        x = self.conv2d_512_1(x)
-        x = self.conv2d_512_2(x)
-        x = self.conv2d_512_2(x)
-        x = self.relu(x)
-        x = self.max_pool(x)
-        o2 = x.clone().detach()
-        x = self.conv2d_512_2(x)
-        x = self.conv2d_512_2(x)
-        x = self.conv2d_512_2(x)
-        x = self.relu(x)
-        x = self.max_pool(x)
-        o3 = x.clone().detach()
-
-        return o1, o2, o3
 
 
 class FusionNet(nn.Module):
     def __init__(self, out_channels, input_shape, lidar=False, optical_flow=False):
         super(FusionNet, self).__init__()
         self.input_shape = input_shape
-        self.RGB_block = UniModal(3)
+
         self.lidar = lidar
         self.optical_flow = optical_flow
 
-        if self.lidar:
-            self.LiDAR_block = UniModal(1)
-
-        if self.optical_flow:
-            self.OFLOW_block = UniModal(2)
+        vgg_16_model = torchvision.models.vgg16(pretrained=True)
+        return_layers = {'16': 'max_pool1', '23': 'max_pool2', '30': 'max_pool3'}
+        self.vgg_16 = IntermediateLayerGetter(vgg_16_model.features, return_layers=return_layers)
 
         self.conv2d_1d_512 = nn.Conv2d(512, out_channels, kernel_size=(1, 1), padding=1, bias=False)
         self.conv2d_1d_256 = nn.Conv2d(256, out_channels, kernel_size=(1, 1), padding=1, bias=False)
@@ -73,8 +28,12 @@ class FusionNet(nn.Module):
         C = 3(RGB), 1(LIDAR[DEPTH]), N(OPTICAL FLOW)
         """
         rgb_img, lidar_img, oflow_img = split_input(x, self.lidar, self.optical_flow)
+
         rgb_img = rgb_img.permute(0, 3, 1, 2)
-        rgb_o1, rgb_o2, rgb_o3 = self.RGB_block(rgb_img)
+        rgb_output = self.vgg_16(rgb_img)
+        rgb_o1 = rgb_output['max_pool1']
+        rgb_o2 = rgb_output['max_pool2']
+        rgb_o3 = rgb_output['max_pool3']
 
         intermediate_sum_1 = rgb_o1
         intermediate_sum_2 = rgb_o2
@@ -82,14 +41,22 @@ class FusionNet(nn.Module):
 
         if self.lidar:
             lidar_img = lidar_img.permute(0, 3, 1, 2)
-            lidar_o1, lidar_o2, lidar_o3 = self.LiDAR_block(lidar_img)
+            lidar_output = self.vgg_16(lidar_img)
+            lidar_o1 = lidar_output['max_pool1']
+            lidar_o2 = lidar_output['max_pool2']
+            lidar_o3 = lidar_output['max_pool3']
+
             intermediate_sum_1 += lidar_o1
             intermediate_sum_2 += lidar_o2
             intermediate_sum_3 += lidar_o3
 
         if self.optical_flow:
             oflow_img = oflow_img.permute(0, 3, 1, 2)
-            oflow_o1, oflow_o2, oflow_o3 = self.OFLOW_block(oflow_img)
+            oflow_output = self.vgg_16(oflow_img)
+            oflow_o1 = oflow_output['max_pool1']
+            oflow_o2 = oflow_output['max_pool2']
+            oflow_o3 = oflow_output['max_pool3']
+
             intermediate_sum_1 += oflow_o1
             intermediate_sum_2 += oflow_o2
             intermediate_sum_3 += oflow_o3
@@ -114,11 +81,11 @@ def split_input(input_data, lidar, optical_flow):
 
     x = input_data
     if lidar and optical_flow:
-        return x[:, :, :, :3], x[:, :, :, 3:4], x[:, :, :, 4:]
-    if lidar and not optical_flow:
-        return x[:, :, :, :3], x[:, :, :, 3:4], None
+        return x[:, :, :, :3], x[:, :, :, 3:6], x[:, :, :, 6:]
     if not lidar and optical_flow:
-        return x[:, :, :, :3], None, x[:, :, :, 4:]
+        return x[:, :, :, :3], None, x[:, :, :, 3:]
+    if lidar and not optical_flow:
+        return x[:, :, :, :3], x[:, :, :, 3:], None
 
     return x[:, :, :, :3], None, None
 
@@ -141,19 +108,19 @@ if __name__ == "__main__":
     import FusionData as fd
 
     data_path = "../Data/Train"
-    train_loader = fd.DataLoader(fd.FusionDataset(data_path), batch_size=1, shuffle=True)
+    train_loader = fd.DataLoader(fd.FusionDataset(data_path, (187, 621)), batch_size=4, shuffle=True)
     train_iter = iter(train_loader)
     input_imgs, output_imgs = next(train_iter)
     print('input shape: ', input_imgs.shape)
     print('output shape: ', output_imgs.shape)
 
-    model = FusionNet(out_channels=3, input_shape=(375, 1242), lidar=True, optical_flow=True)
+    model = FusionNet(out_channels=3, input_shape=(187, 621), lidar=True, optical_flow=True)
     print('number of trainable parameters =', count_parameters(model))
 
     import time
     from tqdm import tqdm
 
-    iterations = 5
+    iterations = 2
     t = time.time()
     for c in tqdm(range(iterations)):
         output = model(input_imgs.float())
