@@ -96,12 +96,15 @@ class FusionDataset(Dataset):
             seg_img = cv2.resize(seg_img, self.input_shape)
 
         rgb_img = rgb_img.astype(float)
+        rgb_img = cv2.normalize(rgb_img, None, 0.0, 1.0, cv2.NORM_MINMAX)
         lidar_img = lidar_img.astype(float)
+        lidar_img = cv2.normalize(lidar_img, None, 0.0, 1.0, cv2.NORM_MINMAX)
         oflow_img = oflow_img.astype(float)
+        oflow_img = cv2.normalize(oflow_img, None, 0.0, 1.0, cv2.NORM_MINMAX)
         seg_img = torch.from_numpy(seg_img.astype(float))
+        seg_img = cv2.normalize(seg_img, None, 0.0, 1.0, cv2.NORM_MINMAX)
         seg_img = seg_img.permute(2, 0, 1)
         stacked = np.dstack((rgb_img, lidar_img, oflow_img))
-        stacked = (stacked - stacked.min(axis=2)) / (stacked.max(axis=2) - stacked.min(axis=2))
         input_img = torch.from_numpy(stacked)
 
         return input_img, seg_img
