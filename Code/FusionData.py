@@ -141,13 +141,13 @@ class FusionDataset(Dataset):
     def normalize(self, img):
 
         img = img.astype(float)
-        img = cv2.normalize(img, None, 0.0, 1.0, cv2.NORM_MINMAX)
+        # img = cv2.normalize(img, None, 0.0, 1.0, cv2.NORM_MINMAX)
         # img[:, :, 0] = (img[:, :, 0] - self.mean[0]) / (self.std[0])
         # img[:, :, 1] = (img[:, :, 1] - self.mean[1]) / (self.std[1])
         # img[:, :, 2] = (img[:, :, 2] - self.mean[2]) / (self.std[2])
-        img[:, :, 0] = (img[:, :, 0] - np.mean(img[:, :, 0])) / np.std(img[:, :, 0])
-        img[:, :, 1] = (img[:, :, 1] - np.mean(img[:, :, 1])) / np.std(img[:, :, 1])
-        img[:, :, 2] = (img[:, :, 2] - np.mean(img[:, :, 2])) / np.std(img[:, :, 2])
+        # img[:, :, 0] = (img[:, :, 0] - np.mean(img[:, :, 0])) / np.std(img[:, :, 0])
+        # img[:, :, 1] = (img[:, :, 1] - np.mean(img[:, :, 1])) / np.std(img[:, :, 1])
+        # img[:, :, 2] = (img[:, :, 2] - np.mean(img[:, :, 2])) / np.std(img[:, :, 2])
 
         return img
 
