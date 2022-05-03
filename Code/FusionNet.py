@@ -13,6 +13,8 @@ class FusionNet(nn.Module):
         self.optical_flow = optical_flow
 
         vgg_16_model = torchvision.models.vgg16(pretrained=True)
+        for param in vgg_16_model.parameters():
+            param.requires_grad = False
         return_layers = {'16': 'max_pool1', '23': 'max_pool2', '30': 'max_pool3'}
         self.vgg_16 = IntermediateLayerGetter(vgg_16_model.features, return_layers=return_layers)
 
