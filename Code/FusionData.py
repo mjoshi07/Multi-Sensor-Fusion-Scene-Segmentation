@@ -104,6 +104,7 @@ class FusionDataset(Dataset):
 
         if self.only_rgb:
             input_img = torch.from_numpy(rgb_img)
+            input_img = input_img.permute(2, 0, 1)
         else:
             stacked = np.dstack((rgb_img, lidar_img, oflow_img))
             input_img = torch.from_numpy(stacked)
