@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 
 
 class FusionDataset(Dataset):
-    def __init__(self, path, input_shape, in_mem=True, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+    def __init__(self, path, input_shape, in_mem=True, only_rgb=True, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
 
         self.rgb_img_dir = os.path.join(path, "vkitti_1.3.1_rgb")
         self.lidar_img_dir = os.path.join(path, "vkitti_1.3.1_depthgt")
@@ -17,6 +17,7 @@ class FusionDataset(Dataset):
         self.input_shape = input_shape
         self.mean = mean
         self.std = std
+        self.only_rgb = only_rgb
 
         if not (os.path.exists(self.rgb_img_dir) and os.path.exists(self.lidar_img_dir)\
                 and os.path.exists(self.oflow_img_dir) and os.path.exists(self.seg_mask_dir)):
@@ -100,8 +101,12 @@ class FusionDataset(Dataset):
         rgb_img = self.normalize(rgb_img)
         lidar_img = self.normalize(lidar_img)
         oflow_img = self.normalize(oflow_img)
-        stacked = np.dstack((rgb_img, lidar_img, oflow_img))
-        input_img = torch.from_numpy(stacked)
+
+        if self.only_rgb:
+            input_img = torch.from_numpy(rgb_img)
+        else:
+            stacked = np.dstack((rgb_img, lidar_img, oflow_img))
+            input_img = torch.from_numpy(stacked)
 
         seg_img = self.normalize(seg_img)
         seg_img = torch.from_numpy(seg_img)
@@ -141,7 +146,7 @@ class FusionDataset(Dataset):
     def normalize(self, img):
 
         img = img.astype(float)
-        # img = cv2.normalize(img, None, 0.0, 1.0, cv2.NORM_MINMAX)
+        img = cv2.normalize(img, None, 0.0, 1.0, cv2.NORM_MINMAX)
         # img[:, :, 0] = (img[:, :, 0] - self.mean[0]) / (self.std[0])
         # img[:, :, 1] = (img[:, :, 1] - self.mean[1]) / (self.std[1])
         # img[:, :, 2] = (img[:, :, 2] - self.mean[2]) / (self.std[2])

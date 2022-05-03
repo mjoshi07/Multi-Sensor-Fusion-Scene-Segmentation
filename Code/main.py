@@ -12,6 +12,7 @@ import argparse
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from Code.unet_model import UNet
 
 from FusionData import FusionDataset
 from FusionNet import FusionNet, count_parameters
@@ -49,7 +50,8 @@ if __name__ == '__main__':
     loss_func = nn.CrossEntropyLoss()
 
     # Model
-    model = FusionNet(out_channels=3, input_shape=(187, 621), lidar=lidar, optical_flow=optical_flow)
+    # model = FusionNet(out_channels=3, input_shape=(187, 621), lidar=lidar, optical_flow=optical_flow)
+    model = UNet(n_channels=3, n_classes=3)
     params = count_parameters(model)
     print('===========================================================')
     print(f'Starting training with lidar: {lidar}, optical flow: {optical_flow}')
