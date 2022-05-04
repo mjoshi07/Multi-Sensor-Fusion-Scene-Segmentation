@@ -233,14 +233,14 @@ class Train():
                     save_path = ckpt_manager.save()
                     print("Saved checkpoint for step {}: {}".format(int(ckpt.step), save_path))
 
-                # if(self.DisableLogData):
-                #     data = [epoch, np.mean(self.Optimizer.lr.numpy()), np.mean(training_epoch_loss), np.mean(training_accuracy.numpy()), np.mean(validation_epoch_loss), np.mean(validation_accuracy.numpy())]
-                #     if(epoch == 1):
-                #         df = pd.DataFrame([data], columns = ['Epochs', 'Learning Rate','Training Loss', 'Training Accuracy', 'Validation Loss', 'Validation Accuracy'])
-                #         df.to_csv(os.path.join(self.TrainingDir, 'Training.csv'), mode='a')
-                #     else:
-                #         df = pd.DataFrame([data])
-                #         df.to_csv(os.path.join(self.TrainingDir, 'Training.csv'), header=False, mode='a')
+                if(self.DisableLogData):
+                    data = [epoch, np.mean(self.Optimizer.lr.numpy()), np.mean(training_epoch_loss), np.mean(validation_epoch_loss)]
+                    if(epoch == 1):
+                        df = pd.DataFrame([data], columns = ['Epochs', 'Learning Rate','Training Loss', 'Validation Loss'])
+                        df.to_csv(os.path.join(self.TrainingDir, 'Training.csv'), mode='a')
+                    else:
+                        df = pd.DataFrame([data])
+                        df.to_csv(os.path.join(self.TrainingDir, 'Training.csv'), header=False, mode='a')
 
                 self.Epoch += 1
 
