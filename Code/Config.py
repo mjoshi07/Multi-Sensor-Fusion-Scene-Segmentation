@@ -1,0 +1,9 @@
+WIDTH = 512
+HEIGHT = 128
+LR = 0.0001
+EPOCHS = 100
+TRAIN_PERCENT = 0.8
+BATCH_SIZE = 10
+DATA_DIR = "../Data/Train"
+MODEL_CHKPT_NAME = "rgb_segmentation_1"
+MODEL_DIR = "../Data/Train/Model"
