@@ -143,14 +143,14 @@ class Train():
         """
 
         lr = 1E-3
-        if epoch > 180:
-            lr *= 0.5E-3
+        if epoch > 300:
+            lr *= 0.5
+        elif epoch > 200:
+            lr *= 0.5
         elif epoch > 160:
-            lr *= 1E-3
-        elif epoch > 120:
-            lr *= 1E-2
+            lr *= 0.5
         elif epoch > 80:
-            lr *= 1E-1
+            lr *= 0.5
 
         return lr
 

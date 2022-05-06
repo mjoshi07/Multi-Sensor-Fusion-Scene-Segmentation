@@ -129,7 +129,7 @@ def UNet(input_size=(256, 1024, 3), n_filters=32, n_classes=3):
     conv10 = Conv2D(n_classes, 1, padding='same')(conv9)
     
     # Define the model
-    model = Model(inputs=inputs, outputs=conv10)
+    model = Model(inputs=inputs, outputs=conv10, name="UNet")
 
     return model
 
