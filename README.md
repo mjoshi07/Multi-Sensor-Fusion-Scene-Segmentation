@@ -9,7 +9,7 @@ Project 4
 
 Instructions -
 ## BiSeNetv2:
-For training and testing RGB and Optical flow data follow the instrcutions on the ReadMe of BiSeNet
+For training and testing RGB and Optical flow data follow the instrcutions on the [ReadMe](https://github.com/mjoshi07/Multi-Sensor-Fusion-Scene-Segmentation/blob/main/BiSeNetv2/README.md) of BiSeNet
 Download initial training weights from *[here](https://drive.google.com/drive/u/1/folders/1w87XoWLIBTSaBTYX3oaYEoLD2VsUeKmu)
 
 ## Resources
