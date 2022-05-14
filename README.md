@@ -8,7 +8,9 @@ Project 4
 
 
 Instructions -
-
+## BiSeNetv2:
+For training and testing RGB and Optical flow data follow the instrcutions on the ReadMe of BiSeNet
+Download initial training weights from *[here](https://drive.google.com/drive/u/1/folders/1w87XoWLIBTSaBTYX3oaYEoLD2VsUeKmu)
 
 ## Resources
 * [Raft: optical flow: learnopencv](https://learnopencv.com/optical-flow-using-deep-learning-raft/)
@@ -30,3 +32,6 @@ Nitesh Jha (117525366)
 Aneesh Dandime (118418506)
 
 Tanuj Thakkar (117817539, tanuj@umd.edu)
+
+## Credits:
+* [BiSeNetv2]( https://github.com/AmrElsersy/PointPainting/tree/master/BiSeNetv2)
