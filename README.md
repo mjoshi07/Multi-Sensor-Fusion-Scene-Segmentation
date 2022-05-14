@@ -31,7 +31,7 @@ Nitesh Jha (117525366)
 
 Aneesh Dandime (118418506)
 
-Tanuj Thakkar (117817539, tanuj@umd.edu)
+Tanuj Thakkar (117817539)
 
 ## Credits:
 * [BiSeNetv2]( https://github.com/AmrElsersy/PointPainting/tree/master/BiSeNetv2)
