@@ -19,6 +19,8 @@ from training import train
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('-dp', '--dataset_path', type=str, default='../Data/vkitti',
+                        help='The path to the dataset. Default: ../Data/vkitti')
     parser.add_argument('-e', '--epochs', type=int, default=100,
                         help='The number of epochs. Default: 100')
     parser.add_argument('-lr', '--learning_rate', type=float, default=1e-5,
@@ -30,13 +32,14 @@ if __name__ == '__main__':
     parser.add_argument('-md', '--model_dir', type=str, default='../Data/vkitti',
                         help='The folder where the dataset is stored. Default: ../Data/vkitti')
     parser.add_argument('-l', '--lidar', action='store_true',
-                        help='Should lidar data be used for training. Default: True')
+                        help='Should lidar data be used for training. Default: False')
     parser.add_argument('-o', '--optical_flow', action='store_true',
-                        help='Should flow data be used for training. Default: True')
+                        help='Should flow data be used for training. Default: False')
 
     args = parser.parse_args()
 
     # Params
+    dataset_path = args.dataset_path
     epochs = args.epochs
     lr = args.learning_rate
     epochs_till_chkpt = args.epochs_till_chkpt
@@ -64,7 +67,7 @@ if __name__ == '__main__':
     print('===========================================================')
 
     # Dataset and dataloader
-    dataset = FusionDataset('../Data/vkitti', input_shape=(621, 187), in_mem=False)
+    dataset = FusionDataset(dataset_path, input_shape=(621, 187), in_mem=False)
     total_length = len(dataset)
     train_length = int(0.8 * total_length)
     val_length = total_length - train_length
