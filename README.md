@@ -38,7 +38,7 @@ our checkpoint file, do not specify the `--lidar` and `--optical_flow` flags.
 The below image shows the results of FusionNet. The pictures on the left column are the actual segmentation ground truth and
 the pictures on the right column are the segmentation masks obtained from our net.
 
-![Results](images/results.png)
+![Results]([images/results.png](https://github.com/mjoshi07/Multi-Sensor-Fusion-Scene-Segmentation/blob/main/FSNet/images/results.png))
 
 ## BiSeNetv2:
 For training and testing RGB and Optical flow data follow the instrcutions on the [ReadMe](https://github.com/mjoshi07/Multi-Sensor-Fusion-Scene-Segmentation/blob/main/BiSeNetv2/README.md) of BiSeNet
