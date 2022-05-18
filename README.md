@@ -47,6 +47,17 @@ the pictures on the right column are the segmentation masks obtained from our ne
 For training and testing RGB and Optical flow data follow the instrcutions on the [ReadMe](https://github.com/mjoshi07/Multi-Sensor-Fusion-Scene-Segmentation/blob/main/BiSeNetv2/README.md) of BiSeNet
 Download initial training weights from *[here](https://drive.google.com/drive/u/1/folders/1w87XoWLIBTSaBTYX3oaYEoLD2VsUeKmu)
 
+## Lidar Fusion
+To fuse segmentation results from optical flow or rgb with lidar points, modify the input data here https://github.com/mjoshi07/Multi-Sensor-Fusion-Scene-Segmentation/blob/36d1966809ec5a2b19349d9fd629ec5e007ecbb5/lidar_fusion/Code/lidar_fusion.py#L87
+Convert lidar `.bin` files to `.pcd` using the function
+https://github.com/mjoshi07/Multi-Sensor-Fusion-Scene-Segmentation/blob/36d1966809ec5a2b19349d9fd629ec5e007ecbb5/lidar_fusion/Code/Utils.py#L11
+
+Run the following command after setting all the data
+```
+python3 lidar_fusion.py
+```
+The output after execution will look something like [this](https://github.com/mjoshi07/Multi-Sensor-Fusion-Scene-Segmentation/blob/main/rgb_segresult.gif)
+
 ## Resources
 * [Raft: optical flow: learnopencv](https://learnopencv.com/optical-flow-using-deep-learning-raft/)
 * [Raft: optical flow: paperswithcode](https://paperswithcode.com/paper/raft-recurrent-all-pairs-field-transforms-for)
