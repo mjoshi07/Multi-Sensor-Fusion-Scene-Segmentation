@@ -3,8 +3,11 @@
 ENPM673 Spring 2022: Perception for Autonomous Robots
 
 Project 4
+## RGB segmentation and lidar fusion
+![Results](https://github.com/mjoshi07/Multi-Sensor-Fusion-Scene-Segmentation/blob/main/rgb_segresult.gif)
 
-
+## Optical flow segmentation and lidar fusion
+![Results](https://github.com/mjoshi07/Multi-Sensor-Fusion-Scene-Segmentation/blob/main/flow_segresult.gif)
 
 
 Instructions -
